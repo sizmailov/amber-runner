@@ -10,8 +10,8 @@ setup(
     long_description=open("README.rst").read(),
     license="BSD",
     install_requires=[
-        'remote-runner',
-        'pyxmolpp2',
+        'remote-runner~=0.0',
+        'pyxmolpp2~=0.10',
         'deprecated',
         'f90nml'
     ],

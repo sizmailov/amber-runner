@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Callable
+import subprocess
 
 
 class Argument:
@@ -25,6 +26,15 @@ class StringArgumentMixin(Argument):
 
     def args(self) -> List[str]:
         return [self.name, self.value]
+
+
+class ListArgumentMixin(Argument):
+
+    def args(self) -> List[str]:
+        result = []
+        for val in self.value:
+            result.extend([self.name, str(val)])
+        return val
 
 
 class BooleanArgumentMixin(Argument):
@@ -61,11 +71,22 @@ class BooleanArgument(BooleanArgumentMixin):
         self.value = value
 
 
+class ListArgument(ListArgumentMixin):
+
+    def __init__(self, name, value: List):
+        self.name = name
+        self.value = value
+
+
 class OptionalStringArgument(OptionalArgumentMixin, StringArgument):
     pass
 
 
 class OptionalBooleanArgument(OptionalArgumentMixin, BooleanArgument):
+    pass
+
+
+class OptionalListArgument(OptionalArgumentMixin, ListArgument):
     pass
 
 
@@ -95,19 +116,21 @@ class ArgumentFactory:
         self.instance.arguments.append(arg)
         return arg
 
+    def list(self, name, value: List = None):
+        if value is None:
+            arg = OptionalListArgument(name, value)
+        else:
+            arg = ListArgument(name, value)
+        self.instance.arguments.append(arg)
+        return arg
+
 
 class Command:
+    executable: List[str]
     arguments: List[Argument]
 
     def __init__(self):
         self.arguments = []
-
-    @property
-    def args(self):
-        result = []
-        for arg in self.arguments:
-            result.extend(arg.args())
-        return result
 
     def __setattr__(self, key, value):
         if not hasattr(self, key):
@@ -125,3 +148,23 @@ class Command:
             return attr.value
         else:
             return attr
+
+    @property
+    def args(self):
+        result = []
+        for arg in self.arguments:
+            result.extend(arg.args())
+        return result
+
+    @property
+    def cmd(self):
+        return self.executable + self.args
+
+    def run(self, **kwargs):
+        return subprocess.run(self.cmd, **kwargs)
+
+    def check_call(self, **kwargs):
+        return subprocess.check_call(self.cmd, **kwargs)
+
+    def check_output(self, **kwargs):
+        return subprocess.check_output(self.cmd, **kwargs)
