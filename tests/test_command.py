@@ -13,6 +13,8 @@ class MyCommand(Command):
         self.extra = arg_factory.string("--extra")
         self.message_length = arg_factory.lambda_string("--message-length", lambda: f"{len(self.message)}")
         self.captured_message = arg_factory.lambda_string("--message-duplicate", lambda: f"{self.message}")
+        self.include_directory = arg_factory.list("--include-directory")
+        self.names = arg_factory.list("--name", ["A", "B"])
 
         self.enable_cuda = False
 
@@ -32,7 +34,9 @@ def test_construction():
     assert cmd.args == ["--message", "hello",
                         "--flag",
                         "--message-length", "5",
-                        "--message-duplicate", "hello"
+                        "--message-duplicate", "hello",
+                        "--name", "A",
+                        "--name", "B",
                         ]
 
 
@@ -44,6 +48,7 @@ def test_setter():
     cmd.extra = "/opt/"
     cmd.flag = False
     cmd.enable_cuda = True
+    cmd.include_directory = ["~/.local/include", "/usr/local/include"]
 
     assert cmd.captured_message == ", world!"
     assert cmd.message == ", world!"
@@ -58,8 +63,22 @@ def test_setter():
                         "--default",
                         "--extra", "/opt/",
                         "--message-length", "8",
-                        "--message-duplicate", ", world!"
+                        "--message-duplicate", ", world!",
+                        "--include-directory", "~/.local/include",
+                        "--include-directory", "/usr/local/include",
+                        "--name", "A",
+                        "--name", "B",
                         ]
 
     with pytest.raises(AttributeError):
         cmd.message_length = 12
+
+
+def test_temp_args():
+    cmd = MyCommand()
+
+    with cmd.scope_args(message="tmp") as exe:
+        assert exe is cmd
+        assert exe.message == "tmp"
+
+    assert cmd.message == "hello"

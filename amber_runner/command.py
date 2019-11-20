@@ -34,7 +34,7 @@ class ListArgumentMixin(Argument):
         result = []
         for val in self.value:
             result.extend([self.name, str(val)])
-        return val
+        return result
 
 
 class BooleanArgumentMixin(Argument):
@@ -125,6 +125,29 @@ class ArgumentFactory:
         return arg
 
 
+class ScopeArguments:
+    """
+    Allows to temporary alter command arguments
+    Restores original values on exit
+    """
+    def __init__(self, command, tmp_kwargs):
+        self.command = command
+        self.tmp_args = tmp_kwargs
+        self.backup = {}
+
+    def __enter__(self):
+        for k, v in self.tmp_args.items():
+            attr = getattr(self.command, k, v)
+            setattr(self.command, k, v)
+            self.backup[k] = attr
+
+        return self.command
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        for k, v in self.backup.items():
+            setattr(self.command, k, v)
+
+
 class Command:
     executable: List[str]
     arguments: List[Argument]
@@ -148,6 +171,9 @@ class Command:
             return attr.value
         else:
             return attr
+
+    def scope_args(self, **kwargs):
+        return ScopeArguments(self, kwargs)
 
     @property
     def args(self):
