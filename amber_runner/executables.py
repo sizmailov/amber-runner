@@ -3,14 +3,14 @@ from typing import List
 
 
 class SanderCommand(Command):
-    executable: List[str] = ["pmemd"]  # must contain `mpirun -np N` part (if any) as well
+    executable: List[str] = ["sander"]  # must contain `mpirun -np N` part (if any) as well
 
     def __init__(self):
         super().__init__()
         arg_factory = ArgumentFactory(self)
         self.output_prefix = "run"  # todo: change it
 
-        self.mdin = arg_factory.lambda_string("-i", lambda: f"{self.output_prefix}.in")
+        self.input = self.mdin = arg_factory.lambda_string("-i", lambda: f"{self.output_prefix}.in")
         self.mdout = arg_factory.lambda_string("-o", lambda: f"{self.output_prefix}.out")
         self.restrt = arg_factory.lambda_string("-r", lambda: f"{self.output_prefix}.rst")
         self.prmtop = arg_factory.string("-p", None)
@@ -39,6 +39,8 @@ class SanderCommand(Command):
 
 
 class PmemdCommand(SanderCommand):
+    executable: List[str] = ["pmemd"]  # must contain `mpirun -np N` part (if any) as well
+
     def __init__(self):
         super(PmemdCommand, self).__init__()
         arg_factoty = ArgumentFactory(self)
@@ -54,15 +56,12 @@ class TleapCommand(Command):
         super().__init__()
         arg_factory = ArgumentFactory(self)
         self.include_dirs = arg_factory.list("-I")
-        self.ignore_startup = arg_factory.boolean("-s")
-        self.source = arg_factory.string("-f")
+        self.ignore_startup = arg_factory.boolean("-s", True)
+        self.input = arg_factory.string("-f")
 
 
 class ParmedCommand(Command):
     executable = ["parmed"]
-    no_splash: bool = True
-    override: bool = True
-    script_filename: str = None
 
     def __init__(self):
         super().__init__()
