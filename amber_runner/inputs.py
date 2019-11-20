@@ -42,6 +42,8 @@ class TleapInput(InputWriter):
 
     def write(self, output: TextIO):
         output.write("\n".join(self.commands))
+        if self.commands[-1:] != ["quit"]:
+            output.write("\nquit")
 
     def bond(self, atom1, atom2):
         self.add_command(f"bond {self.frame}.{atom1.rName}.{atom1.aName} {self.frame}.{atom2.rName}.{atom2.aName}")
@@ -65,6 +67,9 @@ class TleapInput(InputWriter):
     def save_pdb(self, filename=None):
         if filename is None: filename = self.frame
         self.add_command(f"savepdb {self.frame_basename} {self.frame_basename}.pdb")
+
+    def quit(self):
+        self.add_command("quit")
 
 
 class ParmedInput(InputWriter):
