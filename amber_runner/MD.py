@@ -1,19 +1,22 @@
 import os
 from pathlib import Path
-from typing import List, final
+
 import remote_runner
-from .command import Command
-from .inputs import InputWriter, AmberInput, TleapInput, ParmedInput
-from .executables import PmemdCommand, SanderCommand, ParmedCommand, TleapCommand
 from remote_runner.utility import ChangeDirectory
+
+from .command import Command
+from .executables import PmemdCommand, SanderCommand, TleapCommand
+from .inputs import InputWriter, AmberInput, TleapInput
 
 
 class Step:
+    step_dir: Path
+
     def __init__(self, name):
         self.name = name
         self.is_complete = False
 
-    def run(self, md: 'MD', step_dir: Path):
+    def run(self, md: 'MD'):
         raise NotImplementedError()
 
 
@@ -22,7 +25,8 @@ class CommandWithInput:
         self.exe = exe
         self.input = inp
 
-    def run(self, input_filename: Path, **kwargs):
+    def run(self, **kwargs):
+        input_filename = Path(self.exe.input)
         with input_filename.open("w") as inp:
             self.input.write(inp)
         return self.exe.run(**kwargs)
@@ -34,10 +38,17 @@ class Build(Step):
         self.tleap = CommandWithInput(exe=TleapCommand(), inp=TleapInput())
         # self.parmed = CommandWithInput(exe=ParmedCommand(), inp=ParmedInput())
 
-    def run(self, md: 'MD', step_dir: Path):
-        self.tleap.run(step_dir / "tleap.in")
-        # self.parmed.run(step_dir / "parmed.in")
-        md.sander.restrt = step_dir / "frame.prmtop"
+    def run(self, md: 'MD'):
+        self.tleap.exe.input = self.step_dir / 'tleap.in'
+        self.tleap.run()
+
+        frame_prmtop = self.step_dir / "frame.prmtop"
+        assert frame_prmtop.exists()
+        md.sander.prmtop = frame_prmtop
+
+        frame_incrd = self.step_dir / "frame.inpcrd"
+        assert frame_incrd.exists()
+        md.sander.inpcrd = frame_incrd
 
 
 class SingleSanderCall(Step):
@@ -45,9 +56,10 @@ class SingleSanderCall(Step):
         super().__init__(name)
         self.input = AmberInput()
 
-    def run(self, md: 'MD', step_dir: Path):
-        with md.sander.scope_args(output_prefix=str(step_dir / self.name)) as exe:
-            exe.run(self.input, step_dir / f"{self.name}.in")
+    def run(self, md: 'MD'):
+        with md.sander.scope_args(output_prefix=str(self.step_dir / self.name)) as exe:
+            CommandWithInput(exe, self.input).run()
+            md.sander.inpcrd = md.sander.restrt
 
 
 class RepeatedSanderCall(Step):
@@ -57,39 +69,44 @@ class RepeatedSanderCall(Step):
         self.current_step = 0
         self.number_of_steps = number_of_steps
 
-    def run(self, md: 'MD', step_dir: Path):
+    def run(self, md: 'MD'):
         while self.current_step < self.number_of_steps:
-            with md.sander.scope_args(output_prefix=str(step_dir / f"{self.name}{self.current_step:05d}")) as exe:
-                exe.run(self.input, step_dir / f"{self.name}{self.current_step:05d}.in")
+            with md.sander.scope_args(output_prefix=str(self.step_dir / f"{self.name}{self.current_step:05d}")) as exe:
+                CommandWithInput(exe, self.input).run()
+                md.sander.inpcrd = md.sander.restrt
             self.current_step += 1
             md.checkpoint()
 
 
 class MdProtocol(remote_runner.Task):
+    sander: SanderCommand = PmemdCommand()
 
     def __init__(self, name: str, wd: Path):
         super().__init__(wd=wd)
         self.name = name
-        self.sander: SanderCommand = PmemdCommand()
+        self.__steps = []
 
     @staticmethod
     def mkdir_p(path):
         if not os.path.isdir(path):
             os.mkdir(path)
 
-    @property
-    def steps(self) -> List[Step]:
-        raise NotImplementedError()
+    def __setattr__(self, key, value):
+        if isinstance(value, Step):
+            value.step_dir = Path(f"{len(self.__steps)}_{value.name}")
+            self.__steps.append(value)
+        super().__setattr__(key, value)
 
-    @final
+    # @final
     def run(self):
-        for i, step in enumerate(self.steps):
+        for i, step in enumerate(self.__steps):
+            if step.is_complete:
+                continue
             with ChangeDirectory():
-                wd = f"{1 + i}_{step.name}"
-                self.mkdir_p(wd)
-                step.run(self, Path(wd))
+                self.mkdir_p(step.step_dir)
+                step.run(self)
+                step.is_complete = True
                 self.checkpoint()
 
     def checkpoint(self):
         self.save(self.state_filename)
-
