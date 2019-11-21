@@ -49,7 +49,7 @@ class SanderCommand(Command):
                         return "rst7"  # plain ascii restart
             except AttributeError:
                 pass
-        return "ncrst"  # binary retart
+        return "ncrst"  # binary restart
 
 
 class PmemdCommand(SanderCommand):
