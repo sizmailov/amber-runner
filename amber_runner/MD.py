@@ -43,14 +43,15 @@ class Build(Step):
         # self.parmed = CommandWithInput(exe=ParmedCommand(), inp=ParmedInput())
 
     def run(self, md: 'MD'):
+        self.tleap.input.output_dir = self.step_dir
         self.tleap.exe.input = self.step_dir / 'tleap.in'
         self.tleap.run()
 
-        frame_prmtop = self.step_dir / "frame.prmtop"
+        frame_prmtop = self.step_dir / f"{self.tleap.input.frame}.prmtop"
         assert frame_prmtop.exists()
         md.sander.prmtop = frame_prmtop
 
-        frame_incrd = self.step_dir / "frame.inpcrd"
+        frame_incrd = self.step_dir / f"{self.tleap.input.frame}.rst7"  # tleap always produces ascii restart
         assert frame_incrd.exists()
         md.sander.inpcrd = frame_incrd
 

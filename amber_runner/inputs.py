@@ -31,11 +31,11 @@ class TleapInput(InputWriter):
 
     def __init__(self, outdir="1_build"):
         self.commands: List[str] = []
-        self.outdir = outdir
+        self.output_dir = outdir
 
     @property
     def frame_basename(self):
-        return os.path.join(self.outdir, self.frame)
+        return os.path.join(self.output_dir, self.frame)
 
     def add_command(self, command: str):
         self.commands.append(command)
@@ -59,7 +59,7 @@ class TleapInput(InputWriter):
 
     def save_amber_params(self):
         self.add_command(
-            f"saveamberparm {self.frame} {self.frame_basename}.prmtop {self.frame_basename}.inpcrd")
+            f"saveamberparm {self.frame} {self.frame_basename}.prmtop {self.frame_basename}.rst7")
 
     def source(self, filename):
         self.add_command(f"source {filename}")
