@@ -12,7 +12,7 @@ class SanderCommand(Command):
 
         self.input = self.mdin = arg_factory.lambda_string("-i", lambda: f"{self.output_prefix}.in")
         self.mdout = arg_factory.lambda_string("-o", lambda: f"{self.output_prefix}.out")
-        self.restrt = arg_factory.lambda_string("-r", lambda: f"{self.output_prefix}.rst")
+        self.restrt = arg_factory.lambda_string("-r", lambda: f"{self.output_prefix}.{self.restrt_extension}")
         self.prmtop = arg_factory.string("-p", None)
         self.inpcrd = arg_factory.string("-c", None)
 
@@ -36,6 +36,20 @@ class SanderCommand(Command):
 
         self.override = arg_factory.boolean("-O", True)
         self.append = arg_factory.boolean("-A", False)
+
+    @property
+    def restrt_extension(self) -> str:
+        from pathlib import Path
+        import f90nml
+        if Path(self.input).is_file():
+            try:
+                with open(self.input) as file:
+                    inp = f90nml.reads(file)
+                    if inp.cntrl["ioutfm"] == 0:
+                        return "rst7"  # plain ascii restart
+            except AttributeError:
+                pass
+        return "ncrst"  # binary retart
 
 
 class PmemdCommand(SanderCommand):
