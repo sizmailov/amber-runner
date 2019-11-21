@@ -1,13 +1,16 @@
 import os
 from collections import OrderedDict
+from typing import Generic, TypeVar
 from pathlib import Path
 
 import remote_runner
 from remote_runner.utility import ChangeDirectory
 
-from .command import Command
 from .executables import PmemdCommand, SanderCommand, TleapCommand
-from .inputs import InputWriter, AmberInput, TleapInput
+from .inputs import AmberInput, TleapInput
+
+CommandType = TypeVar('CommandType')
+InputType = TypeVar("InputType")
 
 
 class Step:
@@ -21,8 +24,8 @@ class Step:
         raise NotImplementedError()
 
 
-class CommandWithInput:
-    def __init__(self, exe: Command, inp: InputWriter):
+class CommandWithInput(Generic[CommandType, InputType]):
+    def __init__(self, exe: CommandType, inp: InputType):
         self.exe = exe
         self.input = inp
 
