@@ -66,7 +66,7 @@ class TleapInput(InputWriter):
 
     def save_pdb(self, filename=None):
         if filename is None: filename = self.frame
-        self.add_command(f"savepdb {self.frame_basename} {self.frame_basename}.pdb")
+        self.add_command(f"savepdb {self.frame} {filename}.pdb")
 
     def quit(self):
         self.add_command("quit")
