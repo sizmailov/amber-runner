@@ -271,7 +271,9 @@ class AmberInput(InputWriter):
 
         if len(self.restraints) > 0:
             assert "nmropt" in self.cntrl and self.cntrl["nmropt"] > 0
-            with open(f"{output.name}.restraints", "w") as rout:
+            if "DISANG" not in self.file_redirections:
+                self.file_redirections["DISANG"] = f"{output.name}.disang"
+            with open(self.file_redirections["DISANG"], "w") as rout:
                 self.restraints.write(rout)
 
         output.write(f"{title}\n")
