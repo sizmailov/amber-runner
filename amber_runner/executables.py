@@ -19,7 +19,7 @@ class SanderCommand(Command):
         self.mdinfo = arg_factory.string("-inf")
         self.refc = arg_factory.string("-ref")
         self.mtmd = arg_factory.string("-mtmd")
-        self.mdcrd = arg_factory.string("-x")
+        self.mdcrd = arg_factory.lambda_string("-x", lambda: f"{self.output_prefix}.nc")
         self.inptraj = arg_factory.string("-y")
         self.mdvel = arg_factory.string("-v")
         self.mdfrc = arg_factory.string("-frc")
