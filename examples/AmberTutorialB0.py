@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from amber_runner.MD import *
 
 
