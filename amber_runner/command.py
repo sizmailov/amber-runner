@@ -1,5 +1,7 @@
-from typing import Dict, Any, List, Callable
 import subprocess
+import typing
+from collections import OrderedDict
+from typing import Any, List, Callable
 
 
 class Argument:
@@ -97,7 +99,10 @@ class ArgumentFactory:
 
     def lambda_string(self, name, lambda_: Callable[[], str]):
         arg = LambdaStringArgument(name, lambda_)
-        self.instance.arguments.append(arg)
+        return self._add_arg(arg)
+
+    def _add_arg(self, arg):
+        self.instance.arguments[arg.name] = arg
         return arg
 
     def string(self, name, value: str = None):
@@ -105,24 +110,21 @@ class ArgumentFactory:
             arg = OptionalStringArgument(name, value)
         else:
             arg = StringArgument(name, value)
-        self.instance.arguments.append(arg)
-        return arg
+        return self._add_arg(arg)
 
     def boolean(self, name, value: bool = None):
         if value is None:
             arg = OptionalBooleanArgument(name, value)
         else:
             arg = BooleanArgument(name, value)
-        self.instance.arguments.append(arg)
-        return arg
+        return self._add_arg(arg)
 
     def list(self, name, value: List = None):
         if value is None:
             arg = OptionalListArgument(name, value)
         else:
             arg = ListArgument(name, value)
-        self.instance.arguments.append(arg)
-        return arg
+        return self._add_arg(arg)
 
 
 class ScopeArguments:
@@ -130,6 +132,7 @@ class ScopeArguments:
     Allows to temporary alter command arguments
     Restores original values on exit
     """
+
     def __init__(self, command, tmp_kwargs):
         self.command = command
         self.tmp_args = tmp_kwargs
@@ -150,10 +153,10 @@ class ScopeArguments:
 
 class Command:
     executable: List[str]
-    arguments: List[Argument]
+    arguments: typing.OrderedDict[str, Argument]
 
     def __init__(self):
-        self.arguments = []
+        self.arguments = OrderedDict()
 
     def __setattr__(self, key, value):
         if not hasattr(self, key):
@@ -178,7 +181,7 @@ class Command:
     @property
     def args(self):
         result = []
-        for arg in self.arguments:
+        for arg in self.arguments.values():
             result.extend(arg.args())
         return result
 
