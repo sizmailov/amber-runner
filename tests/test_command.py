@@ -40,6 +40,15 @@ def test_construction():
                         ]
 
 
+def test_assign_argument():
+    cmd = MyCommand()
+    assert cmd.extra is None
+    cmd.extra = ArgumentFactory(cmd).lambda_string("--extra", lambda: f"cmd.message={cmd.message}")
+    assert cmd.extra == "cmd.message=hello"
+    cmd.message="foo"
+    assert cmd.extra == "cmd.message=foo"
+
+
 def test_setter():
     cmd = MyCommand()
 

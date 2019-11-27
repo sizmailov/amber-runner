@@ -163,7 +163,7 @@ class Command:
             super().__setattr__(key, value)
         else:
             attr = super().__getattribute__(key)
-            if isinstance(attr, Argument):
+            if isinstance(attr, Argument) and not isinstance(value, Argument):
                 attr.value = value
             else:
                 super().__setattr__(key, value)
