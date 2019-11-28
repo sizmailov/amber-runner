@@ -64,22 +64,22 @@ def test_restraints():
 DISANG=test.in.disang
 """.strip()
         assert test_in_restraints.open().read().strip() == """
-&rst  ! 
+&rst  !
      iat=1,2, r1=1, r2=2, r3=3, r4=4,
      rk2=5, rk3=6
 &end
 
-&rst  ! 
+&rst  !
      iat=3,4, r1=1, r2=2, r3=3, r4=4,
      rk2=5, rk3=6
 &end
 
-&rst  ! 
+&rst  !
      iat=1,2,3, r1=1, r2=2, r3=3, r4=4,
      rk2=5, rk3=6
 &end
 
-&rst  ! 
+&rst  !
      iat=1,2,3,4, r1=1, r2=2, r3=3, r4=4,
      rk2=5, rk3=6
 &end
