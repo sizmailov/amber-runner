@@ -61,21 +61,21 @@ class LambdaStringArgument(StringArgumentMixin):
 
 class StringArgument(StringArgumentMixin):
 
-    def __init__(self, name, value: str):
+    def __init__(self, name, value: str = None):
         self.name = name
         self.value = value
 
 
 class BooleanArgument(BooleanArgumentMixin):
 
-    def __init__(self, name, value: bool):
+    def __init__(self, name, value: bool = None):
         self.name = name
         self.value = value
 
 
 class ListArgument(ListArgumentMixin):
 
-    def __init__(self, name, value: List):
+    def __init__(self, name, value: List = None):
         self.name = name
         self.value = value
 
@@ -90,41 +90,6 @@ class OptionalBooleanArgument(OptionalArgumentMixin, BooleanArgument):
 
 class OptionalListArgument(OptionalArgumentMixin, ListArgument):
     pass
-
-
-class ArgumentFactory:
-
-    def __init__(self, instance):
-        self.instance = instance
-
-    def lambda_string(self, name, lambda_: Callable[[], str]):
-        arg = LambdaStringArgument(name, lambda_)
-        return self._add_arg(arg)
-
-    def _add_arg(self, arg):
-        self.instance.arguments[arg.name] = arg
-        return arg
-
-    def string(self, name, value: str = None):
-        if value is None:
-            arg = OptionalStringArgument(name, value)
-        else:
-            arg = StringArgument(name, value)
-        return self._add_arg(arg)
-
-    def boolean(self, name, value: bool = None):
-        if value is None:
-            arg = OptionalBooleanArgument(name, value)
-        else:
-            arg = BooleanArgument(name, value)
-        return self._add_arg(arg)
-
-    def list(self, name, value: List = None):
-        if value is None:
-            arg = OptionalListArgument(name, value)
-        else:
-            arg = ListArgument(name, value)
-        return self._add_arg(arg)
 
 
 class ScopeArguments:
@@ -159,6 +124,8 @@ class Command:
         self.arguments = OrderedDict()
 
     def __setattr__(self, key, value):
+        if isinstance(value, Argument):
+            self.arguments[value.name] = value
         if not hasattr(self, key):
             super().__setattr__(key, value)
         else:

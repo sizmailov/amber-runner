@@ -1,20 +1,20 @@
-from amber_runner.command import ArgumentFactory, Command
+from amber_runner.command import Command, StringArgument, OptionalStringArgument, ListArgument, LambdaStringArgument, \
+    OptionalListArgument, BooleanArgument, OptionalBooleanArgument
 import pytest
 
 
 class MyCommand(Command):
     def __init__(self):
         super().__init__()
-        arg_factory = ArgumentFactory(self)
 
-        self.message = arg_factory.string("--message", "hello")
-        self.flag = arg_factory.boolean("--flag", True)
-        self.default = arg_factory.boolean("--default")
-        self.extra = arg_factory.string("--extra")
-        self.message_length = arg_factory.lambda_string("--message-length", lambda: f"{len(self.message)}")
-        self.captured_message = arg_factory.lambda_string("--message-duplicate", lambda: f"{self.message}")
-        self.include_directory = arg_factory.list("--include-directory")
-        self.names = arg_factory.list("--name", ["A", "B"])
+        self.message = StringArgument("--message", "hello")
+        self.flag = BooleanArgument("--flag", True)
+        self.default = OptionalBooleanArgument("--default")
+        self.extra = OptionalStringArgument("--extra")
+        self.message_length = LambdaStringArgument("--message-length", lambda: f"{len(self.message)}")
+        self.captured_message = LambdaStringArgument("--message-duplicate", lambda: f"{self.message}")
+        self.include_directory = OptionalListArgument("--include-directory")
+        self.names = ListArgument("--name", ["A", "B"])
 
         self.enable_cuda = False
 
@@ -43,9 +43,9 @@ def test_construction():
 def test_assign_argument():
     cmd = MyCommand()
     assert cmd.extra is None
-    cmd.extra = ArgumentFactory(cmd).lambda_string("--extra", lambda: f"cmd.message={cmd.message}")
+    cmd.extra = LambdaStringArgument("--extra", lambda: f"cmd.message={cmd.message}")
     assert cmd.extra == "cmd.message=hello"
-    cmd.message="foo"
+    cmd.message = "foo"
     assert cmd.extra == "cmd.message=foo"
 
 

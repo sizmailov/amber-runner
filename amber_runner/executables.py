@@ -1,4 +1,5 @@
-from .command import Command, ArgumentFactory
+from .command import Command, OptionalStringArgument, OptionalBooleanArgument, LambdaStringArgument, \
+    OptionalListArgument
 from typing import List
 
 
@@ -7,35 +8,34 @@ class SanderCommand(Command):
 
     def __init__(self):
         super().__init__()
-        arg_factory = ArgumentFactory(self)
         self.output_prefix = "run"  # todo: change it
 
-        self.input = self.mdin = arg_factory.lambda_string("-i", lambda: f"{self.output_prefix}.in")
-        self.mdout = arg_factory.lambda_string("-o", lambda: f"{self.output_prefix}.out")
-        self.restrt = arg_factory.lambda_string("-r", lambda: f"{self.output_prefix}.{self.restrt_extension}")
-        self.prmtop = arg_factory.string("-p", None)
-        self.inpcrd = arg_factory.string("-c", None)
+        self.input = self.mdin = LambdaStringArgument("-i", lambda: f"{self.output_prefix}.in")
+        self.mdout = LambdaStringArgument("-o", lambda: f"{self.output_prefix}.out")
+        self.restrt = LambdaStringArgument("-r", lambda: f"{self.output_prefix}.{self.restrt_extension}")
+        self.prmtop = OptionalStringArgument("-p")
+        self.inpcrd = OptionalStringArgument("-c")
 
-        self.mdinfo = arg_factory.string("-inf")
-        self.refc = arg_factory.string("-ref")
-        self.mtmd = arg_factory.string("-mtmd")
-        self.mdcrd = arg_factory.lambda_string("-x", lambda: f"{self.output_prefix}.nc")
-        self.inptraj = arg_factory.string("-y")
-        self.mdvel = arg_factory.string("-v")
-        self.mdfrc = arg_factory.string("-frc")
-        self.radii = arg_factory.string("-radii")
-        self.mden = arg_factory.string("-e")
-        self.cpin = arg_factory.string("-cpin")
-        self.cprestrt = arg_factory.string("-cprestrt")
-        self.cpout = arg_factory.string("-cpout")
-        self.cein = arg_factory.string("-cein")
-        self.cerestrt = arg_factory.string("-cerestrt")
-        self.ceout = arg_factory.string("-ceout")
-        self.evbin = arg_factory.string("-evbin")
-        self.suffix = arg_factory.string("-suffix")
+        self.mdinfo = OptionalStringArgument("-inf")
+        self.refc = OptionalStringArgument("-ref")
+        self.mtmd = OptionalStringArgument("-mtmd")
+        self.mdcrd = LambdaStringArgument("-x", lambda: f"{self.output_prefix}.nc")
+        self.inptraj = OptionalStringArgument("-y")
+        self.mdvel = OptionalStringArgument("-v")
+        self.mdfrc = OptionalStringArgument("-frc")
+        self.radii = OptionalStringArgument("-radii")
+        self.mden = OptionalStringArgument("-e")
+        self.cpin = OptionalStringArgument("-cpin")
+        self.cprestrt = OptionalStringArgument("-cprestrt")
+        self.cpout = OptionalStringArgument("-cpout")
+        self.cein = OptionalStringArgument("-cein")
+        self.cerestrt = OptionalStringArgument("-cerestrt")
+        self.ceout = OptionalStringArgument("-ceout")
+        self.evbin = OptionalStringArgument("-evbin")
+        self.suffix = OptionalStringArgument("-suffix")
 
-        self.override = arg_factory.boolean("-O", True)
-        self.append = arg_factory.boolean("-A", False)
+        self.override = OptionalBooleanArgument("-O", True)
+        self.append = OptionalBooleanArgument("-A", False)
 
     @property
     def restrt_extension(self) -> str:
@@ -57,11 +57,10 @@ class PmemdCommand(SanderCommand):
 
     def __init__(self):
         super(PmemdCommand, self).__init__()
-        arg_factoty = ArgumentFactory(self)
 
-        self.logfile = arg_factoty.string("-l")
-        self.process_map_file = arg_factoty.string("-gpes")
-        self.allow_small_box = arg_factoty.boolean("-AllowSmallBox")
+        self.logfile = OptionalStringArgument("-l")
+        self.process_map_file = OptionalStringArgument("-gpes")
+        self.allow_small_box = OptionalBooleanArgument("-AllowSmallBox")
 
 
 class TleapCommand(Command):
@@ -69,10 +68,9 @@ class TleapCommand(Command):
 
     def __init__(self):
         super().__init__()
-        arg_factory = ArgumentFactory(self)
-        self.include_dirs = arg_factory.list("-I")
-        self.ignore_startup = arg_factory.boolean("-s", True)
-        self.input = arg_factory.string("-f")
+        self.include_dirs = OptionalListArgument("-I")
+        self.ignore_startup = OptionalBooleanArgument("-s", True)
+        self.input = OptionalBooleanArgument("-f")
 
 
 class ParmedCommand(Command):
@@ -80,9 +78,8 @@ class ParmedCommand(Command):
 
     def __init__(self):
         super().__init__()
-        arg_factory = ArgumentFactory(self)
 
-        self.no_splash = arg_factory.boolean("--no-splash")
-        self.override = arg_factory.boolean("--override")
-        self.input = arg_factory.string("--input")
-        self.log_file = arg_factory.boolean("--logfile")
+        self.no_splash = OptionalBooleanArgument("--no-splash")
+        self.override = OptionalBooleanArgument("--override")
+        self.input = OptionalStringArgument("--input")
+        self.log_file = OptionalStringArgument("--logfile")
