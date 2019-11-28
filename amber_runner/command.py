@@ -118,7 +118,7 @@ class ScopeArguments:
 
 class Command:
     executable: List[str]
-    arguments: typing.OrderedDict[str, Argument]
+    arguments: OrderedDict  # type:typing.OrderedDict [str, Argument]
 
     def __init__(self):
         self.arguments = OrderedDict()
