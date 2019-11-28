@@ -61,6 +61,7 @@ class PmemdCommand(SanderCommand):
 
         self.logfile = arg_factoty.string("-l")
         self.process_map_file = arg_factoty.string("-gpes")
+        self.allow_small_box = arg_factoty.boolean("-AllowSmallBox")
 
 
 class TleapCommand(Command):
