@@ -1,0 +1,23 @@
+language: python
+sudo: false
+os: linux
+dist: trusty
+matrix:
+  include:
+    - python: 3.6
+      name: python 3.6
+before_script:
+  - python setup.py install
+script:
+  - python -m pip install flake8 pytest-cov codecov
+  - flake8
+  - python -m pytest
+  - coverage combine --append
+after_success:
+  - codecov
+#deploy:
+#  provider: pypi
+#  user: __token__
+#  skip_existing: true
+#  on:
+#    branch: master

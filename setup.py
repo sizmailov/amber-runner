@@ -12,7 +12,6 @@ setup(
     install_requires=[
         'remote-runner~=0.0',
         'pyxmolpp2~=0.10',
-        'deprecated',
         'f90nml'
     ],
     tests_require=[
