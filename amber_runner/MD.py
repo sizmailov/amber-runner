@@ -95,6 +95,7 @@ class MdProtocol(remote_runner.Task):
     def mkdir_p(path):
         if not os.path.isdir(path):
             os.mkdir(path)
+        return path
 
     def __setattr__(self, key, value):
         if isinstance(value, Step):
