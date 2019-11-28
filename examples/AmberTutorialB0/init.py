@@ -74,20 +74,20 @@ class Analysis(Step):
         import subprocess
         import os
 
+        summary = md.mkdir_p(self.step_dir / "summary").absolute()
+
         subprocess.run([
             "process_mdout.perl",
-            os.path.relpath(md.heat.step_dir / f"{md.heat.name}.out", self.step_dir),
-            os.path.relpath(md.production.step_dir / f"{md.production.name}.out", self.step_dir)
-        ], cwd=str(self.step_dir))
-
-        import pandas as pd
+            (md.heat.step_dir / f"{md.heat.name}.out").absolute(),
+            (md.production.step_dir / f"{md.production.name}.out").absolute()
+        ], cwd=str(summary))
 
         with remote_runner.utility.ChangeDirectory(self.step_dir):
-            temp = pd.read_csv("summary.TEMP", sep=r"\s+", names=["time", "value"])
-            density = pd.read_csv("summary.DENSITY", sep=r"\s+", names=["time", "value"])
-            etot = pd.read_csv("summary.ETOT", sep=r"\s+", names=["time", "value"])
-            eptot = pd.read_csv("summary.EPTOT", sep=r"\s+", names=["time", "value"])
-            ektot = pd.read_csv("summary.EKTOT", sep=r"\s+", names=["time", "value"])
+            temp = self.read_summary(summary / "summary.TEMP")
+            density = self.read_summary(summary / "summary.DENSITY")
+            etot = self.read_summary(summary / "summary.ETOT")
+            eptot = self.read_summary(summary / "summary.EPTOT")
+            ektot = self.read_summary(summary / "summary.EKTOT")
 
             import matplotlib.pyplot as plt
 
@@ -110,7 +110,10 @@ class Analysis(Step):
             plt.xlabel("time, ps")
             plt.savefig("ENERGY.png")
             plt.close()
-        # fig.axex
+
+    def read_summary(self, summary_path):
+        import pandas as pd
+        return pd.read_csv(summary_path, sep=r"\s+", names=["time", "value"])
 
 
 class AmberTutorialB0(MdProtocol):
