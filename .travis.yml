@@ -1,0 +1,26 @@
+language: python
+sudo: false
+os: linux
+dist: trusty
+matrix:
+  include:
+    - python: 3.6
+      name: python 3.6
+before_script:
+  - python setup.py install
+script:
+  - python -m pip install flake8 pytest-cov codecov
+  - flake8
+  - py.test --cov=amber_runner
+# - coverage combine --append
+after_success:
+  - codecov
+deploy:
+  provider: pypi
+  user: __token__
+  skip_existing: true
+  on:
+    branch: master
+  password:
+    secure: Pov/QPlMfOWX/JPRPDm1NXammcUptIrz5mNCOTLiRhCeLyH5UBRqWAy6m3bI73YHOPp1XG1loYl8nzrDbx+nrAlJ96QOLm6wtAoCXG3bFrYn8xwMZ4BQNJYakdWzIRY5+f5xFB4gIqkD4B+Ge4UYSJ/5hsRb8H/OD9S8qtuXlpwGSL1GZ9paM19APM9aC4+Jy1Xy6NvRXVq2/PNjhcIht7KIGLPV4/A+vpZvvefvJOrSNGHBbz/snpOnbN+F3lIaJYR9xgp71cnlAKEKc6wMwv3VRq1Xu3pbDf6/vCqIFzIDZRP+BqFzTOcD4FBBvajCT0lRewiK3QzmBEW0mUmWbjXn9q3+3FHUAH2eol5HDAVcE5gsZljK8ZY5CWkclhSymPB28ht+FSZtLyvLRe7Al7u11xBNKTBByiAf8ZoUCkIZZ9sdSIl3DyQWTxh1p8hy7n5ZkWfGBjeFRGe9j5myaU0PzZcSuSf61+Umy9FqSkY2rc0AtnvsFsaGZZFr7Iqiu89eQcM4NVxqN2HDbMPk0BfXjBCxFDTxBxV/UqY4cNv7CUFw/lxkVQCqSS26HI87SQC+t/yjea2b7uFOSywj4h9bdpAD8UPmEqYloqOgbF+uHIfCrbVxBSIr+hTNhu27X2Nhyd88fl+CwoUPjwh4S5QNzfNPGJ+6ckwHXjaYeag=
+

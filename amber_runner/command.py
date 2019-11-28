@@ -1,7 +1,7 @@
 import subprocess
 import typing
 from collections import OrderedDict
-from typing import Any, List, Callable
+from typing import Any, List
 
 
 class Argument:
@@ -118,7 +118,7 @@ class ScopeArguments:
 
 class Command:
     executable: List[str]
-    arguments: typing.OrderedDict[str, Argument]
+    arguments: OrderedDict  # type:typing.OrderedDict [str, Argument]
 
     def __init__(self):
         self.arguments = OrderedDict()

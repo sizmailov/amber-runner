@@ -20,7 +20,7 @@ class Step:
         self.name = name
         self.is_complete = False
 
-    def run(self, md: 'MD'):
+    def run(self, md: 'MdProtocol'):
         raise NotImplementedError()
 
 
@@ -42,7 +42,7 @@ class Build(Step):
         self.tleap = CommandWithInput(exe=TleapCommand(), inp=TleapInput())
         # self.parmed = CommandWithInput(exe=ParmedCommand(), inp=ParmedInput())
 
-    def run(self, md: 'MD'):
+    def run(self, md: 'MdProtocol'):
         self.tleap.input.output_dir = self.step_dir
         self.tleap.exe.input = self.step_dir / 'tleap.in'
         self.tleap.run()
@@ -61,7 +61,7 @@ class SingleSanderCall(Step):
         super().__init__(name)
         self.input = AmberInput()
 
-    def run(self, md: 'MD'):
+    def run(self, md: 'MdProtocol'):
         with md.sander.scope_args(output_prefix=str(self.step_dir / self.name)) as exe:
             CommandWithInput(exe, self.input).run()
             md.sander.inpcrd = md.sander.restrt
@@ -74,7 +74,7 @@ class RepeatedSanderCall(Step):
         self.current_step = 0
         self.number_of_steps = number_of_steps
 
-    def run(self, md: 'MD'):
+    def run(self, md: 'MdProtocol'):
         while self.current_step < self.number_of_steps:
             with md.sander.scope_args(output_prefix=str(self.step_dir / f"{self.name}{self.current_step:05d}")) as exe:
                 CommandWithInput(exe, self.input).run()

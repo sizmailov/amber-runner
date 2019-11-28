@@ -1,5 +1,6 @@
-from typing import List, Tuple, Union, TextIO, OrderedDict, Dict, Any, Callable, Generic, TypeVar  # , Literal
 import os
+from typing import List, Tuple, Union, TextIO, Dict, TypeVar  # , Literal
+
 import f90nml
 
 T = TypeVar
@@ -65,7 +66,8 @@ class TleapInput(InputWriter):
         self.add_command(f"source {filename}")
 
     def save_pdb(self, filename=None):
-        if filename is None: filename = self.frame
+        if filename is None:
+            filename = self.frame
         self.add_command(f"savepdb {self.frame} {filename}.pdb")
 
     def quit(self):
@@ -152,7 +154,7 @@ class AmberNMRRestraints(Dict[RestraintAtomIdTuple, List[FlatWelledParabola]], I
             cs_ats = ','.join(map(str, ats))
             for penalty in penalties:
                 output.write(f"""
-&rst  ! 
+&rst  !
      iat={cs_ats}, r1={penalty.r1}, r2={penalty.r2}, r3={penalty.r3}, r4={penalty.r4},
      rk2={penalty.k2}, rk3={penalty.k3}
 &end
