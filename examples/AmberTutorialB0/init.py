@@ -72,6 +72,7 @@ class Analysis(Step):
 
     def run(self, md: 'AmberTutorialB0'):
         import subprocess
+        import os
 
         subprocess.run([
             "process_mdout.perl",
@@ -81,7 +82,7 @@ class Analysis(Step):
 
         import pandas as pd
 
-        with ChangeDirectory(self.step_dir):
+        with remote_runner.utility.ChangeDirectory(self.step_dir):
             temp = pd.read_csv("summary.TEMP", sep=r"\s+", names=["time", "value"])
             density = pd.read_csv("summary.DENSITY", sep=r"\s+", names=["time", "value"])
             etot = pd.read_csv("summary.ETOT", sep=r"\s+", names=["time", "value"])
@@ -117,7 +118,9 @@ class AmberTutorialB0(MdProtocol):
         wd = Path("B0")
         self.mkdir_p(wd)
         MdProtocol.__init__(self, name="B0", wd=wd)
-        self.sander = SanderCommand()
+        self.sander = PmemdCommand()
+        self.sander.executable = ["pmemd.cuda"]
+        self.sander.allow_small_box = True
         self.prepare = Prepare("prepare")
         self.build = Build("build")
         self.minimize = SingleSanderCall("minimize")
@@ -126,11 +129,5 @@ class AmberTutorialB0(MdProtocol):
         self.analysis = Analysis("analysis")
 
 
-if __name__ == "__main__":
-    try:
-        md = MdProtocol.load(Path("B0/state.dill"))
-    except FileNotFoundError:
-        md = AmberTutorialB0()
-
-    with ChangeDirectory(md.wd):
-        md.run()
+md = AmberTutorialB0()
+md.save(Path("B0/state.dill"))
