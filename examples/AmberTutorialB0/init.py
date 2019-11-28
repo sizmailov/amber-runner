@@ -72,7 +72,6 @@ class Analysis(Step):
 
     def run(self, md: 'AmberTutorialB0'):
         import subprocess
-        import os
 
         summary = md.mkdir_p(self.step_dir / "summary").absolute()
 
@@ -121,9 +120,14 @@ class AmberTutorialB0(MdProtocol):
         wd = Path("B0")
         self.mkdir_p(wd)
         MdProtocol.__init__(self, name="B0", wd=wd)
-        self.sander = PmemdCommand()
-        self.sander.executable = ["pmemd.cuda"]
-        self.sander.allow_small_box = True
+
+        self.sander = SanderCommand()
+
+        # `pmemd.cuda` can be used in place of sander
+        # self.sander = PmemdCommand()
+        # self.sander.executable = ["pmemd.cuda"]
+        # self.sander.allow_small_box = True
+
         self.prepare = Prepare("prepare")
         self.build = Build("build")
         self.minimize = SingleSanderCall("minimize")
