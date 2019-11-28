@@ -11,7 +11,7 @@ before_script:
 script:
   - python -m pip install flake8 pytest-cov codecov
   - flake8
-  - py.test --cov=amber_runner
+  - coverage run -m pytest --cov=amber_runner
 # - coverage combine --append
 after_success:
   - codecov
