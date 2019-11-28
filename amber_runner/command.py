@@ -1,7 +1,7 @@
 import subprocess
 import typing
 from collections import OrderedDict
-from typing import Any, List, Callable
+from typing import Any, List
 
 
 class Argument:
