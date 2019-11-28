@@ -1,6 +1,6 @@
 from pathlib import Path
 import remote_runner
-from remote_runner import Pool, LocalPbsWorker, Task
+from remote_runner import Pool, LocalWorker, Task
 
 remote_runner.log_to(".remote-runnner.log", level="DEBUG")
 
