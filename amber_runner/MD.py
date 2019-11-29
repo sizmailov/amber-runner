@@ -97,8 +97,8 @@ class MdProtocol(remote_runner.Task):
 
     def __setattr__(self, key, value):
         if isinstance(value, Step):
-            value.step_dir = Path(f"{len(self.__steps)}_{value.name}")
             self.__steps[key] = value
+            value.step_dir = Path(f"{len(self.__steps)-1}_{value.name}")
         super().__setattr__(key, value)
 
     # @final
