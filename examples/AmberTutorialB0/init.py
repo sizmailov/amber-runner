@@ -73,7 +73,7 @@ class Analysis(Step):
     def run(self, md: 'AmberTutorialB0'):
         import subprocess
 
-        summary = md.mkdir_p(self.step_dir / "summary").absolute()
+        summary = md.mkdir(self.step_dir / "summary").absolute()
 
         subprocess.run([
             "process_mdout.perl",
@@ -118,7 +118,7 @@ class Analysis(Step):
 class AmberTutorialB0(MdProtocol):
     def __init__(self):
         wd = Path("B0")
-        self.mkdir_p(wd)
+        self.mkdir(wd)
         MdProtocol.__init__(self, name="B0", wd=wd)
 
         self.sander = SanderCommand()

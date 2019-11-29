@@ -11,8 +11,7 @@ before_script:
 script:
   - python -m pip install flake8 pytest-cov codecov
   - flake8
-  - coverage run -m pytest --cov=amber_runner
-# - coverage combine --append
+  - bash travis/run_tests_with_coverage.sh
 after_success:
   - codecov
 deploy:
