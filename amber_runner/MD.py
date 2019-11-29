@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 from typing import Generic, TypeVar
 from pathlib import Path
@@ -92,9 +91,8 @@ class MdProtocol(remote_runner.Task):
         self.__steps = OrderedDict()
 
     @staticmethod
-    def mkdir_p(path):
-        if not os.path.isdir(path):
-            os.mkdir(path)
+    def mkdir(path: Path, mode=0o755):
+        path.mkdir(mode=mode, exist_ok=True)
         return path
 
     def __setattr__(self, key, value):
@@ -109,7 +107,7 @@ class MdProtocol(remote_runner.Task):
             if step.is_complete:
                 continue
             with ChangeDirectory():
-                self.mkdir_p(step.step_dir)
+                self.mkdir(step.step_dir)
                 step.run(self)
                 step.is_complete = True
                 self.checkpoint()
