@@ -75,11 +75,19 @@ class RepeatedSanderCall(Step):
 
     def run(self, md: 'MdProtocol'):
         while self.current_step < self.number_of_steps:
+            self.before_call(md)
             with md.sander.scope_args(output_prefix=str(self.step_dir / f"{self.name}{self.current_step:05d}")) as exe:
                 CommandWithInput(exe, self.input).run()
                 md.sander.inpcrd = md.sander.restrt
+            self.after_call(md)
             self.current_step += 1
             md.checkpoint()
+
+    def before_call(self, md: 'MdProtocol'):
+        pass
+
+    def after_call(self, md: 'MdProtocol'):
+        pass
 
 
 class MdProtocol(remote_runner.Task):
