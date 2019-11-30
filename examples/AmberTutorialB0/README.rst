@@ -1,8 +1,7 @@
-.. _amber-b0-tutorial: http://ambermd.org/tutorials/basic/tutorial0/
 
 .. image:: http://ambermd.org/tutorials/basic/tutorial0/include/Alanine_Dipeptide_3D.png
 
-This is implementation of `AMBER Tutorial B0 <amber-b0-tutorial>`_  using
+This is implementation of `AMBER Tutorial B0 <http://ambermd.org/tutorials/basic/tutorial0/>`_  using
 ``amber-runner`` library.
 
 The whole MD protocol and analysis are described in ``init.py``. Here we set up
