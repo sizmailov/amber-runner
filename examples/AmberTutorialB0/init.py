@@ -8,8 +8,6 @@ class Prepare(Step):
         tleap_in.source('leaprc.water.tip3p')
         tleap_in.add_command(f'{tleap_in.frame} = sequence {{ ACE ALA NME }}')
         tleap_in.solvate_oct("TIP3PBOX", 10.0)
-        tleap_in.save_amber_params()
-        tleap_in.quit()
 
         md.minimize.input.cntrl(
             imin=1,

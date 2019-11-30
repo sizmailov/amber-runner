@@ -33,6 +33,8 @@ class TleapInput(InputWriter):
     def __init__(self, outdir="1_build"):
         self.commands: List[str] = []
         self.output_dir = outdir
+        self._saved = False
+        self._quited = False
 
     @property
     def frame_basename(self):
@@ -42,9 +44,9 @@ class TleapInput(InputWriter):
         self.commands.append(command)
 
     def write(self, output: TextIO):
+        self._save_amber_params()
+        self._quit()
         output.write("\n".join(self.commands))
-        if self.commands[-1:] != ["quit"]:
-            output.write("\nquit")
 
     def bond(self, atom1, atom2):
         self.add_command(f"bond {self.frame}.{atom1.rName}.{atom1.aName} {self.frame}.{atom2.rName}.{atom2.aName}")
@@ -58,9 +60,10 @@ class TleapInput(InputWriter):
     def add_ions(self, ion, target_charge=0):
         self.add_command(f"addions {self.frame} {ion} {target_charge}")
 
-    def save_amber_params(self):
-        self.add_command(
-            f"saveamberparm {self.frame} {self.frame_basename}.prmtop {self.frame_basename}.rst7")
+    def _save_amber_params(self):
+        if not self._saved:
+            self.add_command(f"saveamberparm {self.frame} {self.frame_basename}.prmtop {self.frame_basename}.rst7")
+        self._saved = True
 
     def source(self, filename):
         self.add_command(f"source {filename}")
@@ -70,8 +73,10 @@ class TleapInput(InputWriter):
             filename = self.frame
         self.add_command(f"savepdb {self.frame} {filename}.pdb")
 
-    def quit(self):
-        self.add_command("quit")
+    def _quit(self):
+        if not self._quited:
+            self.add_command("quit")
+        self._quited = True
 
 
 class ParmedInput(InputWriter):
