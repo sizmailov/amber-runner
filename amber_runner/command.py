@@ -2,6 +2,7 @@ import subprocess
 import typing
 from collections import OrderedDict
 from typing import Any, List
+from remote_runner.utility import self_logger as _logger
 
 
 class Argument:
@@ -157,10 +158,13 @@ class Command:
         return self.executable + self.args
 
     def run(self, **kwargs):
+        _logger(self).info(self.cmd)
         return subprocess.run(self.cmd, **kwargs)
 
     def check_call(self, **kwargs):
+        _logger(self).info(self.cmd)
         return subprocess.check_call(self.cmd, **kwargs)
 
     def check_output(self, **kwargs):
+        _logger(self).info(self.cmd)
         return subprocess.check_output(self.cmd, **kwargs)
