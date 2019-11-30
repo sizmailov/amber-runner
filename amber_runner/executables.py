@@ -70,7 +70,7 @@ class TleapCommand(Command):
         super().__init__()
         self.include_dirs = OptionalListArgument("-I")
         self.ignore_startup = OptionalBooleanArgument("-s", True)
-        self.input = OptionalBooleanArgument("-f")
+        self.input = OptionalStringArgument("-f")
 
 
 class ParmedCommand(Command):
