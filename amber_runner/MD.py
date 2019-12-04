@@ -91,6 +91,7 @@ class RepeatedSanderCall(Step):
 
 
 class MdProtocol(remote_runner.Task):
+    _protected_methods = remote_runner.Task._protected_methods + ["checkpoint"]
     sander: SanderCommand = PmemdCommand()
 
     def __init__(self, name: str, wd: Path):
