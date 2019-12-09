@@ -16,20 +16,20 @@ def test_mod_and_run():
         if wd.is_dir():
             shutil.rmtree(wd)
 
-        subprocess.call(["coverage", "run", "-p", "./init.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./init.py"])
         assert (wd / "state.dill").is_file()
 
-        subprocess.call(["coverage", "run", "-p", "./run.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./run.py"])
         assert int(read_file(wd / "exit_code")) == 0
         assert read_file(wd / "stdout").strip() == "Hello!"
 
-        subprocess.call(["coverage", "run", "-p", "./modify_0.py"])
-        subprocess.call(["coverage", "run", "-p", "./run.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./modify_0.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./run.py"])
         assert int(read_file(wd / "exit_code")) == 0
         assert read_file(wd / "stdout").strip() == "World!"
 
-        subprocess.call(["coverage", "run", "-p", "./modify_1.py"])
-        subprocess.call(["coverage", "run", "-p", "./run.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./modify_1.py"])
+        subprocess.check_call(["coverage", "run", "-p", "./run.py"])
         assert int(read_file(wd / "exit_code")) == 0
         assert read_file(wd / "stdout").strip() == "FooBar"
 
