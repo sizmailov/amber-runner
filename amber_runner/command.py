@@ -157,9 +157,9 @@ class Command:
     def cmd(self):
         return self.executable + self.args
 
-    def run(self, **kwargs):
+    def run(self, check=True, **kwargs):
         _logger(self).info(self.cmd)
-        return subprocess.run(self.cmd, **kwargs)
+        return subprocess.run(self.cmd, check=check, **kwargs)
 
     def check_call(self, **kwargs):
         _logger(self).info(self.cmd)
