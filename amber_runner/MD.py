@@ -67,11 +67,11 @@ class SingleSanderCall(Step):
 
 
 class RepeatedSanderCall(Step):
-    def __init__(self, name, number_of_steps: int):
-        super().__init__(name)
-        self.input = AmberInput()
+    def __init__(self, name: str, number_of_steps: int):
         self.current_step = 0
         self.number_of_steps = number_of_steps
+        self.input = AmberInput()
+        super().__init__(name)
 
     def run(self, md: 'MdProtocol'):
         while self.current_step < self.number_of_steps:
@@ -88,6 +88,14 @@ class RepeatedSanderCall(Step):
 
     def after_call(self, md: 'MdProtocol'):
         pass
+
+    @property
+    def is_complete(self):
+        return self.current_step >= self.number_of_steps
+
+    @is_complete.setter
+    def is_complete(self, value: bool):
+        assert (self.current_step >= self.number_of_steps) == value
 
 
 class MdProtocol(remote_runner.Task):
@@ -107,7 +115,7 @@ class MdProtocol(remote_runner.Task):
     def __setattr__(self, key, value):
         if isinstance(value, Step):
             self.__steps[key] = value
-            value.step_dir = Path(f"{len(self.__steps)-1}_{value.name}")
+            value.step_dir = Path(f"{len(self.__steps) - 1}_{value.name}")
         super().__setattr__(key, value)
 
     # @final
