@@ -6,7 +6,7 @@ setup(
     maintainer_email="sergei.a.izmailov@gmail.com",
     description="Batch execution for Amber MD",
     url="https://github.com/sizmailov/amber-runner",
-    version="0.0.6",
+    version="0.0.7",
     long_description=open("README.rst").read(),
     license="BSD",
     install_requires=[
