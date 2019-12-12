@@ -9,4 +9,4 @@ coverage run -p -m pytest --cov=amber_runner
 find . -iname '.coverage.*' -exec mv -t $PWD {} +
 
 # generate combined report
-coverage combine
+coverage combine --append
