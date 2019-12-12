@@ -284,3 +284,46 @@ END
 END
 
 """.strip()
+
+
+def test_GroupSelectionFind_compares():
+    assert AmberInput.GroupSelectionFind(atom_name="CA") == AmberInput.GroupSelectionFind(atom_name="CA")
+    assert AmberInput.GroupSelectionFind(atom_name="CA") != AmberInput.GroupSelectionFind(atom_name="CB")
+
+    assert AmberInput.GroupSelectionFind() == AmberInput.GroupSelectionFind(atom_name="*")
+
+
+def test_invalid_input_GroupSelection():
+    inp = AmberInput()
+
+    with pytest.raises(Exception, match=".*Duplicated FIND records*"):
+        inp.pin(AmberInput.GroupSelection(
+            title="My Group 1",
+            weight=100.0,
+            find=[
+                AmberInput.GroupSelectionFind(atom_name="CA"),
+                AmberInput.GroupSelectionFind(atom_name="CA"),
+            ],
+            atom_id_ranges=[(1, 100)],
+            residue_id_ranges=[(5, 10)]
+        ))
+
+    with pytest.raises(RuntimeError, match=r"GroupSelection.atom_id_ranges overlap: \(100, 110\) and \(1, 100\)"):
+        inp.pin(AmberInput.GroupSelection(
+            title="My Group 1",
+            atom_id_ranges=[(1, 100), (100, 110)]
+        ))
+    inp.pin(AmberInput.GroupSelection(
+        title="My Group 1",
+        atom_id_ranges=[(1, 100), (101, 110)]
+    ))
+
+    with pytest.raises(RuntimeError, match=r"GroupSelection.residue_id_ranges overlap: \(100, 110\) and \(1, 100\)"):
+        inp.pin(AmberInput.GroupSelection(
+            title="My Group 1",
+            residue_id_ranges=[(1, 100), (100, 110)]
+        ))
+    inp.pin(AmberInput.GroupSelection(
+        title="My Group 1",
+        residue_id_ranges=[(1, 100), (101, 110)]
+    ))

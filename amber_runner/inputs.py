@@ -185,11 +185,27 @@ class AmberInput(InputWriter):
         def __init__(self, atom_name="*", atom_type="*", tree_type: GroupTreeType = "*", residue_name="*"):
             self.atom_name = atom_name
             self.atom_type = atom_type
-            self.atom_tree = tree_type
+            self.tree_type = tree_type
             self.residue_name = residue_name
 
         def __str__(self):
-            return f"{self.atom_name} {self.atom_type} {self.atom_tree} {self.residue_name}"
+            return f"{self.atom_name} {self.atom_type} {self.tree_type} {self.residue_name}"
+
+        def __repr__(self):
+            return f"GroupSelectionFind({self.atom_name} {self.atom_type} {self.tree_type} {self.residue_name})"
+
+        def __eq__(self, other):
+            return ((self.atom_name == other.atom_name) and
+                    (self.atom_type == other.atom_type) and
+                    (self.tree_type == other.tree_type) and
+                    (self.residue_name == other.residue_name))
+
+        def __hash__(self):
+            return hash((self.atom_name, self.atom_type, self.tree_type, self.residue_name))
+
+        def __lt__(self, other):
+            return (self.atom_name, self.atom_type, self.tree_type, self.residue_name) < \
+                   (other.atom_name, other.atom_type, other.tree_type, other.residue_name)
 
     class GroupSelection:
         def __init__(self,
@@ -212,6 +228,8 @@ class AmberInput(InputWriter):
             self.atom_id_ranges = atom_id_ranges
             self.residue_id_ranges = residue_id_ranges
 
+            self.validate()
+
         def write(self, out: TextIO):
             out.write(f"{self.title}\n")
             if self.weight is not None:
@@ -226,6 +244,37 @@ class AmberInput(InputWriter):
             for first, last in self.residue_id_ranges:
                 out.write(f"RES {first} {last}\n")
             out.write("END\n")
+
+        def validate(self):
+            if len(self.find) > 1:
+                find_records = sorted(self.find)
+                first = find_records[0]
+                for second in find_records[1:]:
+                    if first == second:
+                        raise RuntimeError(f"Duplicated FIND record: {first}")
+                    first = second
+
+            def first_overlapped_ranges(ranges: List[Tuple[int, int]]):
+                total = set()
+                for first, last in ranges:
+                    expanded = set(range(first, last + 1))
+                    intersection = total.intersection(expanded)
+                    if intersection:
+                        for first2, last2 in ranges:
+                            expanded2 = set(range(first2, last2 + 1))
+                            intersection = expanded.intersection(expanded2)
+                            if intersection:
+                                return True, (first, last), (first2, last2)
+                    total = total.union(expanded)
+                return False, set(), set()
+
+            overlap, a, b = first_overlapped_ranges(self.atom_id_ranges)
+            if overlap:
+                raise RuntimeError(f"GroupSelection.atom_id_ranges overlap: {a} and {b}")
+
+            overlap, a, b = first_overlapped_ranges(self.residue_id_ranges)
+            if overlap:
+                raise RuntimeError(f"GroupSelection.residue_id_ranges overlap: {a} and {b}")
 
     class GroupSelections(List[GroupSelection]):
 
