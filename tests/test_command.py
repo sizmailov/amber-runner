@@ -91,3 +91,9 @@ def test_temp_args():
         assert exe.message == "tmp"
 
     assert cmd.message == "hello"
+
+
+def test_lambda_argument():
+    cmd = MyCommand()
+    with pytest.raises(RuntimeError):
+        cmd.captured_message = LambdaStringArgument("--message-duplicate", "non-callable")

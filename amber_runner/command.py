@@ -52,6 +52,8 @@ class BooleanArgumentMixin(Argument):
 class LambdaStringArgument(StringArgumentMixin):
 
     def __init__(self, name, lambda_):
+        if not hasattr(lambda_, '__call__'):
+            raise RuntimeError(f"`lambda_` argument of LambdaStringArgument() must be callable")
         self.name = name
         self.lambda_ = lambda_
 
